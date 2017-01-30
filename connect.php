@@ -23,6 +23,7 @@ if(1)
 	$number=$_POST['Players'];
 	$contact = $_POST['conatct'];
 	$mail=$_POST['mail'];
+   $accomo=$_POST['accomo'];
 	if(isset($_POST['Player_name_0']))
 		$p1=$_POST['Player_name_0'];
 	else
@@ -87,8 +88,8 @@ if(1)
 		$p16=$_POST['Player_name_15'];
 	else
 		$p16="";
-$sql = "INSERT INTO reg (name, college, teamname, number,contact,mail,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16)
-VALUES ('$name', '$college', '$teamname', '$number', '$contact', '$mail','$p1','$p2','$p3','$p4','$p5','$p6','$p7','$p8','$p9','$p10','$p11','$p12','$p13','$p14','$p15','$p16')";
+$sql = "INSERT INTO reg (name, college, teamname, number,contact,mail,accomo,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16)
+VALUES ('$name', '$college', '$teamname', '$number', '$contact', '$mail','$accomo','$p1','$p2','$p3','$p4','$p5','$p6','$p7','$p8','$p9','$p10','$p11','$p12','$p13','$p14','$p15','$p16')";
 
 if ($conn->query($sql) === TRUE) {
     header("Location: thank_you.php");
