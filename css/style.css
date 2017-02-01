@@ -521,6 +521,17 @@ canvas {
 }
 
 
+@media(max-width:768px){
+.white-popup {
+  background: #FFF;
+  padding: 25px;
+  width: auto;
+  max-width: 400px;
+  border-radius:5px;
+}
+	
+}
+
 
 /* 
 
