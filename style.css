@@ -1,11 +1,36 @@
 .color-run{
 	width: 90%;
 	margin: 0 auto;
-	margin-top:1000px;
-	margin-bottom:1000px;
-	background-image:url("1.gif");
+	background-image:url("color.gif");
 	background-size:cover;
 	background-position: center center;
 	height: 400px;
-	box-shadow: 10px 10px 10px #888888;
+	box-shadow: 10px 10px 10px #adadad;
+	border-radius:10px;
+	transition:0.3s linear;
+	filter: brightness(100%);
+}
+
+@media(max-width:768px){
+
+.color-run{
+	width: 95%;
+	margin: 0 auto;
+	background-image:url("color.gif");
+	background-position: center center;
+	height: 20vh;
+	box-shadow: 5px 5px 5px #adadad;
+	border-radius:8px;
+
+}
+
+}
+
+
+.color-run:hover{
+	cursor:pointer;
+	box-shadow: 7px 7px 7px #888888;
+	transition:0.3s linear;
+	filter: brightness(90%);
+
 }
