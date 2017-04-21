@@ -36,7 +36,7 @@ var mainState = {
 	
 	update: function(){
 		
-		if (this.bird.y < 0 || this.bird.y>window.innerHeight){
+		if (this.bird.y < 0 || this.bird.y>490){
 			this.restartGame();
 		}
 		
@@ -77,9 +77,9 @@ var mainState = {
 	addRowOfPipes: function(){
 		var hole = Math.floor(Math.random()*5) +1;
 		
-		for (var i = 0; i<13; i++){
+		for (var i = 0; i<8; i++){
 			if (i!=hole && i!= hole+1 && i!=hole+2){
-				this.addOnePipe(innerWidth,i*60);
+				this.addOnePipe(400,i*60+10);
 			}
 		}
 		this.score += 1;
@@ -104,6 +104,6 @@ var mainState = {
 
 
 
-var game = new Phaser.Game(window.innerWidth,window.innerHeight);
+var game = new Phaser.Game(400,490);
 game.state.add('main',mainState);
 game.state.start('main');
