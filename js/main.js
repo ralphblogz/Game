@@ -1,110 +1,108 @@
-var game = new Phaser.Game(480, 320, Phaser.AUTO, null, {preload: preload, create: create, update: update});
-
-var ball;
-var paddle;
-var bricks;
-var newBrick;
-var brickInfo;
-var scoreText;
-var score = 0;
-
-
-function preload() {
-    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    game.scale.pageAlignHorizontally = true;
-    game.scale.pageAlignVertically = true;
-    game.stage.backgroundColor = '#eee';
-    game.load.image('ball', 'assets/diamond.png');
-    game.load.image('paddle', 'assets/paddle.png');
-	game.load.image('brick','assets/brick.png');
+var mainState = {
+	preload: function(){
+		game.load.image('bird','assets/bird.png');
+		game.load.image('pipe','assets/pipe.png');
+		game.load.audio('jump','assets/jump.wav');
+		game.load.audio('collision','assets/col.wav');		
+	},	
 	
-}
-
-
-function create() {
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-    ball = game.add.sprite(game.world.width*0.5, game.world.height-25, 'ball');
-    ball.anchor.set(0.5);
-    game.physics.enable(ball, Phaser.Physics.ARCADE);
-    ball.body.velocity.set(150, -150);
-    ball.body.collideWorldBounds = true;
-    ball.body.bounce.set(1);
-
-	game.physics.arcade.checkCollision.down = false;
+	create: function(){
+		
+		game.stage.backgroundColor = '#71c5cf';
+		
+		game.physics.startSystem(Phaser.Physics.Arcade);
+		this.bird = game.add.sprite(100,100,'bird');
+		
+		game.physics.arcade.enable(this.bird);
+		this.bird.body.gravity.y = 1000;
+		
+		var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		spaceKey.onDown.add(this.jump,this);
+		
+		
+		this.pipes = game.add.group();
+		this.timer = game.time.events.loop(1500,this.addRowOfPipes,this);
+		
+		this.score = 0;
+		this.labelScore = game.add.text(20,20,'0',{font: '30px Arial',fill:'black'});
+		
+		game.load.audio('jump','assets/jump.wav');
+		this.jumpSound = game.add.audio('jump');
+		
+		game.load.audio('collision','assets/col.wav');
+		this.collisionsSound = game.add.audio('collision');
+	},
 	
-	ball.checkWorldBounds = true;
-	ball.events.onOutOfBounds.add(function(){
-		alert('Game over!');
-		location.reload();
-	}, this);
-	
-    paddle = game.add.sprite(game.world.width*0.5, game.world.height-5, 'paddle');
-    paddle.anchor.set(0.5,1);
-    game.physics.enable(paddle, Phaser.Physics.ARCADE);
-    paddle.body.immovable = true;
-	initBricks();
-	
-	scoreText = game.add.text(5,5,'Points: 0',{ font: '18px Arial', fill: '#0095DD' })
-}
-
-
-function update() {
-    game.physics.arcade.collide(ball, paddle);
-	game.physics.arcade.collide(ball,bricks,ballHitBrick);
-    paddle.x = game.input.x || game.world.width*0.5;
-}
-
-
-
-function initBricks(){
-	brickInfo = {
-		width: 50, height: 20,
-		count: {
-			row: 7, col:3
-		},
-		offset: {
-			top:50,left:60
-		},
-		padding:10
-	};
-	
-	bricks = game.add.group();
-	
-	for (c=0;c<brickInfo.count.col;c++) {
-		for(r=0;r<brickInfo.count.row;r++) {
-			var brickX = (r*(brickInfo.width+brickInfo.padding))+brickInfo.offset.left;
-			var brickY = (c*(brickInfo.height+brickInfo.padding))+brickInfo.offset.top;
-			newBrick = game.add.sprite(brickX,brickY,'brick');
-			game.physics.enable(newBrick,Phaser.Physics.ARCADE);
-			newBrick.body.immovable = true;
-			newBrick.anchor.set(0.5);
-			bricks.add(newBrick);
+	update: function(){
+		
+		if (this.bird.y < 0 || this.bird.y>490){
+			this.restartGame();
 		}
-	}
-	
-}
-
-function ballHitBrick(ball,brick){
-	brick.kill();
-	score += 10;
-    scoreText.setText('Points: '+score);
-	
-	var count_alive = 3;
-	for(i=0;i<bricks.children.length; i++) {
-		if (bricks.children[i].alive == true){
-			count_alive++;
+		
+		game.physics.arcade.overlap(this.bird,this.pipes,this.hitPipe,null,this);
+		
+		if(this.bird.angle < 20){
+			this.bird.angle += 1;
 		}
-	}
-	if (count_alive == 0) {
-		alert('you won');
-		location.reload();
-	}
-}
+		
+	},
+	
+	
+	jump: function(){
+		if (this.bird.alive == false){
+			return;
+		}
+		this.bird.body.velocity.y = -350;
+		var animation = game.add.tween(this.bird);
+		animation.to({angle:-20},100);
+		animation.start();
+		this.jumpSound.play();
+	
+	},
+	
+	restartGame: function(){
+		game.state.start('main');
+	},
+	
+	addOnePipe: function(x,y){
+		var pipe = game.add.sprite(x,y,'pipe');
+		this.pipes.add(pipe);
+		game.physics.arcade.enable(pipe);
+		pipe.body.velocity.x = -200;
+		pipe.checkWorldBounds = true;
+		pipe.outOfBoundsKill = true;
+	
+	},
+	addRowOfPipes: function(){
+		var hole = Math.floor(Math.random()*5) +1;
+		
+		for (var i = 0; i<8; i++){
+			if (i!=hole && i!= hole+1 && i!=hole+2){
+				this.addOnePipe(400,i*60+10);
+			}
+		}
+		this.score += 1;
+		this.labelScore.text = this.score;
+	},
+	
+	hitPipe: function() {
+		if(this.bird.alive == false){
+			return;
+		}
+		this.bird.alive = false;
+		game.time.events.remove(this.timer);
+		this.pipes.forEach(function(p){
+			p.body.velocity.x = 0;
+		},this);
+		this.collisionsSound.play();
+	},
+};
 
 
 
 
 
 
-
-
+var game = new Phaser.Game(400,490);
+game.state.add('main',mainState);
+game.state.start('main');
